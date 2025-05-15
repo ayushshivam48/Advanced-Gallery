@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Album Creator</title>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div class="album-container" id="albumContainer">
+        <!-- Albums will be dynamically added here -->
+    </div>
+
+    <button class="add-album" id="addAlbumButton">+</button>
+
+    <div class="album-input" id="albumInput">
+        <input type="text" id="albumName" placeholder="Enter album name">
+        <button id="createAlbum">Create</button>
+    </div>
+
+    <div class="context-menu" id="contextMenu">
+        <button id="renameAlbum">Rename</button>
+        <button id="deleteAlbum">Delete</button>
+        <button id="changeCoverImage">Change Album Picture</button>
+    </div>
+
+    <!-- Hidden file input for uploading images -->
+    <input type="file" id="fileInput" style="display:none" accept="image/*">
+
+    <script>
+        
+    </script>
+</body>
+</html>
 
