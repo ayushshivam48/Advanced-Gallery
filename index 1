@@ -149,7 +149,195 @@
     <input type="file" id="fileInput" style="display:none" accept="image/*">
 
     <script>
-        
+        const addAlbumButton = document.getElementById('addAlbumButton');
+        const albumInput = document.getElementById('albumInput');
+        const createAlbumButton = document.getElementById('createAlbum');
+        const albumNameInput = document.getElementById('albumName');
+        const albumContainer = document.getElementById('albumContainer');
+        const contextMenu = document.getElementById('contextMenu');
+        const fileInput = document.getElementById('fileInput');
+
+        let currentAlbum = null;
+        let currentCoverImage = null;
+
+        // Load albums from localStorage
+        function loadAlbums() {
+            const albums = JSON.parse(localStorage.getItem('albums')) || [];
+            albums.forEach(album => {
+                createAlbum(album.name, album.coverImage);
+            });
+        }
+
+        // Save albums to localStorage
+        function saveAlbums() {
+            const albums = [];
+            document.querySelectorAll('.album').forEach(album => {
+                const name = album.querySelector('.album-title').textContent;
+                const coverImage = album.querySelector('img').src; // Only store the cover image
+                albums.push({ name, coverImage });
+            });
+            localStorage.setItem('albums', JSON.stringify(albums));
+        }
+
+        addAlbumButton.addEventListener('click', () => {
+            albumInput.style.display = 'block';
+            albumNameInput.focus();
+        });
+
+        // Clear album name input and hide input when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!albumInput.contains(event.target) && !addAlbumButton.contains(event.target)) {
+                albumInput.style.display = 'none';
+                albumNameInput.value = '';  // Clear the input field when clicked outside
+            }
+        });
+
+        createAlbumButton.addEventListener('click', () => {
+            const albumName = albumNameInput.value.trim();
+            if (albumName) {
+                createAlbum(albumName);
+                saveAlbums();
+                albumNameInput.value = '';
+                albumInput.style.display = 'none';
+            }
+        });
+
+        function createAlbum(name, coverImage = 'https://via.placeholder.com/150') {
+            const album = document.createElement('div');
+            album.className = 'album';
+
+            const coverImg = document.createElement('img');
+            coverImg.src = coverImage;
+            coverImg.alt = `${name} Cover`;
+
+            const title = document.createElement('div');
+            title.className = 'album-title';
+            title.textContent = name;
+
+            album.appendChild(coverImg);
+            album.appendChild(title);
+            albumContainer.appendChild(album);
+
+            // Add event listener for right-click (context menu)
+            album.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+                currentAlbum = album;
+                currentCoverImage = coverImg;
+                contextMenu.style.top = `${event.clientY}px`;
+                contextMenu.style.left = `${event.clientX}px`;
+                contextMenu.style.display = 'block';
+            });
+        }
+
+        // Right-click menu actions
+        document.getElementById('renameAlbum').addEventListener('click', () => {
+            const newName = prompt('Enter new album name:', currentAlbum.querySelector('.album-title').textContent);
+            if (newName) {
+                currentAlbum.querySelector('.album-title').textContent = newName;
+                saveAlbums();
+            }
+            contextMenu.style.display = 'none';
+        });
+
+        document.getElementById('deleteAlbum').addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete this album?')) {
+                currentAlbum.remove();
+                saveAlbums();
+            }
+            contextMenu.style.display = 'none';
+        });
+
+        document.getElementById('changeCoverImage').addEventListener('click', () => {
+            fileInput.click(); // Trigger the file input to upload a new image
+            fileInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        currentCoverImage.src = e.target.result; // Change cover image
+                        saveAlbums();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            contextMenu.style.display = 'none';
+        });
+
+        // Close context menu when clicking elsewhere
+        document.addEventListener('click', (event) => {
+            if (!contextMenu.contains(event.target)) {
+                contextMenu.style.display = 'none';
+            }
+        });
+
+        // Load albums on page load
+        window.onload = loadAlbums;
+
+        // Function to create a new album element
+        function createAlbum(name, coverImage = 'https://via.placeholder.com/150') {
+            const album = document.createElement('div');
+            album.className = 'album';
+
+            const coverImg = document.createElement('img');
+            coverImg.src = coverImage;
+            coverImg.alt = `${name} Cover`;
+
+            const title = document.createElement('div');
+            title.className = 'album-title';
+            title.textContent = name;
+
+            album.appendChild(coverImg);
+            album.appendChild(title);
+            albumContainer.appendChild(album);
+
+            // Add event listener for right-click (context menu)
+            album.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+                currentAlbum = album;
+                currentCoverImage = coverImg;
+                contextMenu.style.top = `${event.clientY}px`;
+                contextMenu.style.left = `${event.clientX}px`;
+                contextMenu.style.display = 'block';
+            });
+
+            // Add event listener for redirecting to another HTML page
+            album.addEventListener('click', () => {
+                window.location.href = 'index2.html'; // Redirect to the details page
+            });
+        }
+
+        // Function to hide the context menu
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        // Event listener to hide the context menu on click outside
+        window.addEventListener('click', (event) => {
+            if (event.target !== contextMenu && !contextMenu.contains(event.target)) {
+                hideContextMenu();
+            }
+        });
+
+        // Event listener for deleting the current album
+        const deleteOption = document.getElementById('delete-option');
+        deleteOption.addEventListener('click', () => {
+            if (currentAlbum) {
+                currentAlbum.remove();
+                hideContextMenu();
+            }
+        });
+
+        // Event listener for changing the album cover
+        const changeCoverOption = document.getElementById('change-cover-option');
+        changeCoverOption.addEventListener('click', () => {
+            if (currentCoverImage) {
+                const newCoverImage = prompt('Enter the URL for the new cover image:');
+                if (newCoverImage) {
+                    currentCoverImage.src = newCoverImage;
+                }
+                hideContextMenu();
+            }
+        });
     </script>
 </body>
 </html>
